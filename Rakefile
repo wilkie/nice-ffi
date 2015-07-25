@@ -74,28 +74,18 @@ rule( /bump:[0-9.]+/ ) do |t|
 
 end
 
-
 #################
 ##  CHANGELOG  ##
 #################
 
-task :changelog do
-  `ruby scripts/mkchangelog.rb ChangeLog.txt`
-end
-
-task "ChangeLog.txt" => [:changelog]
 task :gem => [:changelog]
 task :package => [:changelog]
-
 
 #############
 ##  CLEAN  ##
 #############
 
 require 'rake/clean'
-
-CLEAN.include("ChangeLog.txt")
-
 
 ############
 ##  DOCS  ##
@@ -113,7 +103,7 @@ end
 # SPECS #
 #########
 
-#begin
+begin
   require 'rspec/core/rake_task'
 
   desc "Run all specs"
@@ -153,14 +143,14 @@ rule(/spec:.+/) do |t|
 
 end
 
-#rescue LoadError
-#  error = "ERROR: RSpec is not installed?"
-#
-#  task :spec do
-#    puts error
-#  end
-#
-#  rule( /spec:.*/ ) do
-#    puts error
-#  end
-#end
+rescue LoadError
+  error = "ERROR: RSpec is not installed?"
+
+  task :spec do
+    puts error
+  end
+
+  rule( /spec:.*/ ) do
+    puts error
+  end
+end
