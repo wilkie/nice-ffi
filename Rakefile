@@ -44,7 +44,6 @@ Gem::PackageTask.new( $gemspec ) do |pkg|
   pkg.need_tar_bz2 = true
 end
 
-
 ###############
 ##  VERSION  ##
 ###############
@@ -71,15 +70,7 @@ rule( /bump:[0-9.]+/ ) do |t|
      $_.gsub!(/\(s.version *= *\)"[0-9.]+"/, "\\\\1\\"#{ver}\\"")
    ' nice-ffi.gemspec`
   puts "done"
-
 end
-
-#################
-##  CHANGELOG  ##
-#################
-
-task :gem => [:changelog]
-task :package => [:changelog]
 
 #############
 ##  CLEAN  ##
@@ -124,24 +115,23 @@ begin
     end
   end
 
-rule(/spec:.+/) do |t|
-  name = t.name.gsub("spec:","")
+  rule(/spec:.+/) do |t|
+    name = t.name.gsub("spec:","")
 
-  path = File.join( File.dirname(__FILE__),'spec','%s_spec.rb'%name )
+    path = File.join( File.dirname(__FILE__),'spec','%s_spec.rb'%name )
 
-  if File.exist? path
-    RSpec::Core::RakeTask.new(name) do |t|
-      t.pattern = path
+    if File.exist? path
+      RSpec::Core::RakeTask.new(name) do |t|
+        t.pattern = path
+      end
+
+      puts "\nRunning spec/%s_spec.rb"%name
+
+      Rake::Task[name].invoke
+    else
+      puts "File does not exist: %s"%path
     end
-
-    puts "\nRunning spec/%s_spec.rb"%name
-
-    Rake::Task[name].invoke
-  else
-    puts "File does not exist: %s"%path
   end
-
-end
 
 rescue LoadError
   error = "ERROR: RSpec is not installed?"

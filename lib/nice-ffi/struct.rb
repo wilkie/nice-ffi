@@ -31,12 +31,12 @@
 # A class to be used as a baseclass where you would use FFI::Struct.
 # It acts mostly like FFI::Struct, but with nice extra features and
 # conveniences to make life easier:
-# 
+#
 # * Automatically defines read and write accessor methods (e.g. #x,
 #   #x=) for struct members when you call #layout. (You can use
 #   #hidden and #read_only before or after calling #layout to affect
 #   which members have accessors.)
-# 
+#
 # * Implements "smart" accessors for TypedPointer types, seamlessly
 #   wrapping those members so you don't even have to think about the
 #   fact they are pointers!
@@ -45,11 +45,11 @@
 #   struct and set its data in one shot by passing an Array, Hash, or
 #   another instance of the class (to copy data). You can also use it
 #   to wrap a FFI::Pointer like FFI::Struct can.
-# 
+#
 # * Implements #to_ary and #to_hash to dump the struct data.
-# 
+#
 # * Implements #to_s and #inspect for nice debugging output.
-# 
+#
 # * Adds ::typed_pointer convenience alias to create a TypedPointer
 #   for this klass.
 #
@@ -64,7 +64,7 @@ class NiceFFI::Struct < FFI::Struct
 
     # Returns a NiceFFI::TypedPointer instance for this class.
     # Equivalent to NiceFFI::TypedPointer.new( this_class, options )
-    # 
+    #
     def typed_pointer( options={} )
       NiceFFI::TypedPointer.new(self, options)
     end
@@ -72,16 +72,16 @@ class NiceFFI::Struct < FFI::Struct
 
     # Same syntax as FFI::Struct#layout, but also defines nice
     # accessors for the attributes.
-    # 
+    #
     # Example:
-    # 
+    #
     #   class Rect < NiceStruct
     #     layout( :x, :int16,
     #             :y, :int16,
     #             :w, :uint16,
     #             :h, :uint16 )
     #   end
-    # 
+    #
     def layout( *spec )
       @nice_spec = spec
 
@@ -109,37 +109,37 @@ class NiceFFI::Struct < FFI::Struct
     # for them in #layout, and do not print them out in #to_s, etc.
     # You can call this before or after calling #layout, and can call
     # it more than once if you like.
-    # 
+    #
     # Note: They can still be read and written via #[] and #[]=,
     # but will not have convenience accessors.
-    # 
+    #
     # Note: This will remove the accessor methods (if they exist) for
     # the members! So if you're defining your own custom accessors, do
     # that *after* you have called this method.
-    # 
+    #
     # Example:
-    # 
+    #
     #   class SecretStruct < NiceStruct
-    #   
+    #
     #     # You can use it before the layout...
     #     hidden( :hidden1 )
-    #     
+    #
     #     layout( :visible1, :uint16,
     #             :visible2, :int,
     #             :hidden1,  :uint,
     #             :hidden2,  :pointer )
-    #     
+    #
     #     # ... and/or after it.
     #     hidden( :hidden2 )
-    #     
+    #
     #     # :hidden1 and :hidden2 are now both hidden.
     #   end
-    # 
+    #
     def hidden( *members )
       if defined?(@hidden_members)
         @hidden_members += members
       else
-        @hidden_members = members 
+        @hidden_members = members
       end
 
       members.each do |member|
@@ -163,37 +163,37 @@ class NiceFFI::Struct < FFI::Struct
 
     # Mark the given members as read-only, so they won't have write
     # accessors.
-    # 
+    #
     # Note: They can still be written via #[]=,
     # but will not have convenience accessors.
-    # 
+    #
     # Note: This will remove the writer method (if it exists) for
     # the members! So if you're defining your own custom writer, do
     # that *after* you have called this method.
-    # 
+    #
     # Example:
-    # 
+    #
     #   class SecretStruct < NiceStruct
-    #   
+    #
     #     # You can use it before the layout...
     #     read_only( :readonly1 )
-    #     
+    #
     #     layout( :visible1,  :uint16,
     #             :visible2,  :int,
     #             :readonly1, :uint,
     #             :readonly2, :pointer )
-    #     
+    #
     #     # ... and/or after it.
     #     read_only( :readonly2 )
-    #     
+    #
     #     # :readonly1 and :readonly2 are now both read-only.
     #   end
-    # 
+    #
     def read_only( *members )
       if defined?(@readonly_members)
         @readonly_members += members
       else
-        @readonly_members = members 
+        @readonly_members = members
       end
 
       members.each do |member|
@@ -219,13 +219,13 @@ class NiceFFI::Struct < FFI::Struct
     # This is similar to attr_accessor, except these accessors read
     # and write the struct's members, instead of to instance
     # variables.
-    # 
+    #
     # E.g. `wrap_member(:x, :int16)` defines #x and #x= read and write
     # to the struct's :x member, which is an int16.
-    # 
+    #
     # Normally you don't need to call this method, because #layout
     # does this automatically.
-    # 
+    #
     def wrap_member( member, type )
       @hidden_members = [] unless defined?(@hidden_members)
 
@@ -317,17 +317,17 @@ class NiceFFI::Struct < FFI::Struct
   # Array of attributes, a bytestring of raw data, copying from
   # another instance of the class, or wrapping (not copying!) a
   # FFI::Pointer.
-  # 
+  #
   # If val is an instance of FFI::Pointer and you have defined
   # MyClass.release, the pointer will be passed to MyClass.release
   # when the memory is no longer being used. Use MyClass.release to
   # free the memory for the struct, as appropriate for your class. To
   # disable autorelease for this instance, set {:autorelease => false}
   # in +options+.
-  # 
+  #
   # (Note: FFI::MemoryPointer and FFI::Buffer have built-in memory
   # management, so MyClass.release is never called for them.)
-  # 
+  #
   def initialize( val, options={} )
     # Stores certain kinds of member values so that we don't need
     # to create a new object every time they are read.
@@ -338,20 +338,20 @@ class NiceFFI::Struct < FFI::Struct
     case val
 
     when Hash
-      super(FFI::Buffer.new(size))
+      super(FFI::Buffer.new(self.class.size))
       init_from_hash( val )         # Read the values from a Hash.
 
     # Note: plain "Array" would mean FFI::Struct::Array in this scope.
     when ::Array
-      super(FFI::Buffer.new(size))
+      super(FFI::Buffer.new(self.class.size))
       init_from_array( val )        # Read the values from an Array.
 
     when String
-      super(FFI::Buffer.new(size))
+      super(FFI::Buffer.new(self.class.size))
       init_from_bytes( val )        # Read the values from a bytestring.
 
     when self.class
-      super(FFI::Buffer.new(size))
+      super(FFI::Buffer.new(self.class.size))
       init_from_bytes( val.to_bytes ) # Read the values from another instance.
 
     when FFI::Pointer, FFI::Buffer
@@ -392,22 +392,22 @@ class NiceFFI::Struct < FFI::Struct
 
   # Dump this instance as an Array of its struct data.
   # The array contains only the data, not the member names.
-  # 
+  #
   # Note: the order of data in the array always matches the
   # order of members given in #layout.
-  # 
+  #
   # Example:
-  # 
+  #
   #   Rect.new( :x=>1, :y=>2, :w=>3, :h=>4 ).to_ary
   #   # => [1,2,3,4]
-  # 
+  #
   def to_ary
     members.collect{ |m| self[m] }
   end
 
 
   # Dump this instance as a string of raw bytes of its struct data.
-  # 
+  #
   def to_bytes
     return self.pointer.get_bytes(0, self.size)
   end
@@ -415,12 +415,12 @@ class NiceFFI::Struct < FFI::Struct
 
   # Dump this instance as a Hash containing {member => data} pairs
   # for every member in the struct.
-  # 
+  #
   # Example:
-  # 
+  #
   #   Rect.new( :x=>1, :y=>2, :w=>3, :h=>4 ).to_hash
   #   # => {:h=>4, :w=>3, :x=>1, :y=>2}
-  # 
+  #
   def to_hash
     return {} if members.empty?
     Hash[ *(members.collect{ |m| [m, self[m]] }.flatten!) ]
@@ -441,11 +441,11 @@ class NiceFFI::Struct < FFI::Struct
 
         # Cleanup/simplify for display
         if val.nil? or (val.is_a? FFI::Pointer and val.null?)
-          val = "NULL" 
+          val = "NULL"
         elsif val.kind_of? FFI::Struct
           val = "#<#{val.class}:%#.x>"%val.object_id
         end
-        
+
         "@#{m}=#{val}"
       end
     }.compact.join(", ")
