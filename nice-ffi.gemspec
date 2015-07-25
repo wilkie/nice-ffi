@@ -53,7 +53,7 @@ EOF
   s.files = Dir["**/*.rdoc", "lib/**/*.rb"] + ["ChangeLog.txt"]
   s.require_paths = ["lib"]
 
-  s.required_ruby_version = ">= 2.0"
+  s.required_ruby_version = ">= 1.9"
 
   s.add_dependency( "ffi",  ">=1.0.0" )
 end
