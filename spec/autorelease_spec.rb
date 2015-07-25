@@ -5,9 +5,7 @@ require 'spec_helper.rb'
 # a previous spec might release itself during the current spec, and
 # you may get wrong results.
 
-
 $open_pointers = []
-
 
 def do_gc
   if RUBY_PLATFORM =~ /java/
@@ -16,7 +14,6 @@ def do_gc
     GC.start
   end
 end
-
 
 class AutoReleaseThing
   include NiceFFI::AutoRelease
@@ -33,7 +30,6 @@ class AutoReleaseThing
   attr_reader :pointer
 end
 
-
 class AutoReleaseDisabled
   include NiceFFI::AutoRelease
 
@@ -49,7 +45,6 @@ class AutoReleaseDisabled
   attr_reader :pointer
 end
 
-
 class NoReleaseMethod
   include NiceFFI::AutoRelease
 
@@ -62,15 +57,10 @@ class NoReleaseMethod
   attr_reader :pointer
 end
 
-
-
-
 describe NiceFFI::AutoRelease do
-
   before :each do
     $open_pointers = []
   end
-
 
   describe "with autorelease enabled" do
     it "should release pointers when GCed" do
@@ -82,9 +72,8 @@ describe NiceFFI::AutoRelease do
       5.times{  do_gc;  sleep 0.05  }
 
       # Almost all of them should have been garbage collected by now
-      $open_pointers.should have_at_most(3).items
+      expect($open_pointers.length).to be <= 3
     end
-
 
     it "should not release pointers with other references" do
       remembered_things = []
@@ -100,27 +89,24 @@ describe NiceFFI::AutoRelease do
       5.times{  do_gc;  sleep 0.05  }
 
       remembered_things.each do |thing|
-        $open_pointers.should include( thing.pointer[0].address )
+        expect($open_pointers).to include( thing.pointer[0].address )
       end
 
       # Almost all of the rest should have been garbage collected by now
-      $open_pointers.should have_at_most(23).items
+      expect($open_pointers.length).to be <= 23
     end
-
 
     it "should wrap the pointer in an AutoPointer" do
       ptr = FFI::Pointer.new(1)
       thing = AutoReleaseThing.new( ptr )
-      thing.pointer.should be_kind_of( FFI::AutoPointer )
-      thing.pointer[0].address.should == ptr.address
+      expect(thing.pointer).to be_a( FFI::AutoPointer )
+      expect(thing.pointer[0].address).to be(ptr.address)
     end
   end
 
-
-
   describe "with no self.release method" do
     it "should not release pointers when GCed" do
-      NoReleaseMethod.should_not_receive :_release
+      expect(NoReleaseMethod).to_not receive(:_release)
 
       1001.upto(1050) do |i|
         NoReleaseMethod.new( FFI::Pointer.new(i) )
@@ -129,20 +115,17 @@ describe NiceFFI::AutoRelease do
       5.times{  do_gc;  sleep 0.05  }
     end
 
-
     it "should use the pointer as given" do
       ptr = FFI::Pointer.new(1)
       thing = NoReleaseMethod.new( ptr )
-      thing.pointer.should equal(ptr)
+      expect(thing.pointer).to be(ptr)
     end
   end
 
-
-
   describe "with autorelease disabled" do
     it "should not release pointers when GCed" do
-      AutoReleaseDisabled.should_not_receive :_release
-      AutoReleaseDisabled.should_not_receive :release
+      expect(AutoReleaseDisabled).to_not receive(:_release)
+      expect(AutoReleaseDisabled).to_not receive(:release)
 
       2001.upto(2050) do |i|
         AutoReleaseDisabled.new( FFI::Pointer.new(i) )
@@ -151,12 +134,10 @@ describe NiceFFI::AutoRelease do
       5.times{  do_gc;  sleep 0.05  }
     end
 
-
     it "should use the pointer as given" do
       ptr = FFI::Pointer.new(1)
       thing = AutoReleaseDisabled.new( ptr )
-      thing.pointer.should equal(ptr)
+      expect(thing.pointer).to be(ptr)
     end
   end
-
 end

@@ -35,12 +35,12 @@ require 'rake'
 ##   GEM   ##
 #############
 
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 
 # Load nice-ffi.gemspec, which defines $gemspec.
 load File.join( File.dirname(__FILE__), "nice-ffi.gemspec" )
 
-Rake::GemPackageTask.new( $gemspec ) do |pkg|
+Gem::PackageTask.new( $gemspec ) do |pkg|
   pkg.need_tar_bz2 = true
 end
 
@@ -101,7 +101,7 @@ CLEAN.include("ChangeLog.txt")
 ##  DOCS  ##
 ############
 
-require 'rake/rdoctask'
+require 'rdoc/task'
 
 Rake::RDocTask.new do |rd|
   rd.title = "Nice-FFI #{$gemspec.version} Docs"
@@ -109,23 +109,22 @@ Rake::RDocTask.new do |rd|
   rd.rdoc_files.include( "lib/**/*.rb", "docs/*.rdoc", "*.rdoc" )
 end
 
-
 #########
 # SPECS #
 #########
 
-begin
-  require 'spec/rake/spectask'
+#begin
+  require 'rspec/core/rake_task'
 
   desc "Run all specs"
-  Spec::Rake::SpecTask.new do |t|
-    t.spec_files = FileList['spec/*_spec.rb']
+  RSpec::Core::RakeTask.new do |t|
+    t.pattern = 'spec/*_spec.rb'
   end
 
   namespace :spec do
     desc "Run all specs"
-    Spec::Rake::SpecTask.new(:all) do |t|
-      t.spec_files = FileList['spec/*_spec.rb']
+    RSpec::Core::RakeTask.new(:all) do |t|
+      t.pattern = 'spec/*_spec.rb'
     end
 
     desc "Run spec/[name]_spec.rb (e.g. 'color')"
@@ -135,15 +134,14 @@ begin
     end
   end
 
-
 rule(/spec:.+/) do |t|
   name = t.name.gsub("spec:","")
 
   path = File.join( File.dirname(__FILE__),'spec','%s_spec.rb'%name )
 
   if File.exist? path
-    Spec::Rake::SpecTask.new(name) do |t|
-      t.spec_files = [path]
+    RSpec::Core::RakeTask.new(name) do |t|
+      t.pattern = path
     end
 
     puts "\nRunning spec/%s_spec.rb"%name
@@ -155,16 +153,14 @@ rule(/spec:.+/) do |t|
 
 end
 
-rescue LoadError
-
-  error = "ERROR: RSpec is not installed?"
-
-  task :spec do 
-    puts error
-  end
-
-  rule( /spec:.*/ ) do
-    puts error
-  end
-
-end
+#rescue LoadError
+#  error = "ERROR: RSpec is not installed?"
+#
+#  task :spec do
+#    puts error
+#  end
+#
+#  rule( /spec:.*/ ) do
+#    puts error
+#  end
+#end

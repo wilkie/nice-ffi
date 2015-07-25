@@ -36,10 +36,9 @@ end
 
 
 $gemspec = Gem::Specification.new do |s|
-
   s.name     = "nice-ffi"
   s.version  = "0.4"
-  s.authors  = ["John Croisant"]
+  s.authors  = ["John Croisant", "wilkie"]
   s.email    = "jacius@gmail.com"
   s.homepage = "http://github.com/jacius/nice-ffi/"
   s.summary  = "Convenience layer atop Ruby-FFI"
@@ -54,8 +53,7 @@ EOF
   s.files = Dir["**/*.rdoc", "lib/**/*.rb"] + ["ChangeLog.txt"]
   s.require_paths = ["lib"]
 
-  s.required_ruby_version = ">= 1.8"
+  s.required_ruby_version = ">= 2.0"
 
-  s.add_dependency( "ffi",  ">=0.5.0" )
-
+  s.add_dependency( "ffi",  ">=1.0.0" )
 end
